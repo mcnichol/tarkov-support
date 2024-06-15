@@ -2,7 +2,6 @@
 
 import platform
 import ctypes
-from ctypes.util import find_library
 from ctypes import wintypes
 import time
 
@@ -39,7 +38,7 @@ class MOUSEINPUT(ctypes.Structure):
 
 class KEYBDINPUT(ctypes.Structure):
     _fields_ = (
-        ("wVk",         ctypes.wintypes.WORD),
+        ("wKeyCode",    ctypes.wintypes.WORD),
         ("wScan",       ctypes.wintypes.WORD),
         ("dwFlags",     ctypes.wintypes.DWORD),
         ("time",        ctypes.wintypes.DWORD),
@@ -99,23 +98,21 @@ def ReleaseKey(hexKeyCode):
     user32.SendInput(1, ctypes.byref(x), ctypes.sizeof(x))
 
 def app():
-    
-    operatingSystem = platform.uname()[0]
-
-    if operatingSystem == "Windows":
-        run()
-    elif operatingSystem == "Linux":
-        name = find_library("c")
-        lib = cdll.LoadLibrary(name)
-    else:
-        name = "osx.dylib"
-        lib = cdll.LoadLibrary(name)
-
-def run():
     time.sleep(10)
     PressKey(VK_SNAPSHOT)   
     ReleaseKey(VK_SNAPSHOT)  
     print("Print Screen Executed")
+    # Get list of files in Documents/Escape from Tarkov/Screenshots
+    # #                    SS Date | Server Time? | X-Axis? | Z-Axis? | Y-Axis? | ??? | ??? | ??? | ??? | ???
+    # # Screenshot Format: YYYY-MM-DD[HH-MM]_-XXX.X, #.#, -YYY.Y_#.#, #.#, #.#, #.#_##.##
+    # # C;\Users\desktop_6950xt\Documents\Escape from Tarkov\Screenshots\2024-06-13[20-31]_-340.8, 1.2, -116.0_0.0, 1.0, 0.0, 0.2_13.62
+    # Sort lexicographically
+    # Take last screenshot
+    # Extract GPS
+    # Delete files
+    # Draw location on canvas
+
+    
 
 if __name__ == "__main__":
     app()
