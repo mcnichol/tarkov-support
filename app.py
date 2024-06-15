@@ -4,6 +4,7 @@ import platform
 import ctypes
 from ctypes import wintypes
 import time
+import os
 
 
 user32 = ctypes.WinDLL('user32', use_last_error=True)
@@ -102,17 +103,20 @@ def app():
     PressKey(VK_SNAPSHOT)   
     ReleaseKey(VK_SNAPSHOT)  
     print("Print Screen Executed")
-    # Get list of files in Documents/Escape from Tarkov/Screenshots
+
     # #                    SS Date | Server Time? | X-Axis? | Z-Axis? | Y-Axis? | ??? | ??? | ??? | ??? | ???
     # # Screenshot Format: YYYY-MM-DD[HH-MM]_-XXX.X, #.#, -YYY.Y_#.#, #.#, #.#, #.#_##.##
-    # # C;\Users\desktop_6950xt\Documents\Escape from Tarkov\Screenshots\2024-06-13[20-31]_-340.8, 1.2, -116.0_0.0, 1.0, 0.0, 0.2_13.62
-    # Sort lexicographically
-    # Take last screenshot
-    # Extract GPS
+    # # C:\Users\desktop_6950xt\Documents\Escape from Tarkov\Screenshots\2024-06-13[20-31]_-340.8, 1.2, -116.0_0.0, 1.0, 0.0, 0.2_13.62
+
+    files = os.listdir("C://Users//desktop_6950xt//Documents//Escape from Tarkov//Screenshots")
+    files.sort()
+    currentLocation = files[0].split("_")[1].split(",")
+    x = currentLocation[0]
+    y = currentLocation[2]
+    z = currentLocation[1]
+    print(x, y, z)
     # Delete files
     # Draw location on canvas
-
-    
 
 if __name__ == "__main__":
     app()
