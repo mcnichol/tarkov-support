@@ -5,7 +5,7 @@ import ctypes
 from ctypes import wintypes
 import time
 import os
-
+from tkinter import *
 
 user32 = ctypes.WinDLL('user32', use_last_error=True)
 
@@ -109,7 +109,7 @@ def app():
     # # C:\Users\desktop_6950xt\Documents\Escape from Tarkov\Screenshots\2024-06-13[20-31]_-340.8, 1.2, -116.0_0.0, 1.0, 0.0, 0.2_13.62
 
     files = os.listdir("C://Users//desktop_6950xt//Documents//Escape from Tarkov//Screenshots")
-    files.sort()
+    files.sort(reverse=True)
     currentLocation = files[0].split("_")[1].split(",")
     x = currentLocation[0]
     y = currentLocation[2]
@@ -117,6 +117,10 @@ def app():
     print(x, y, z)
     # Delete files
     # Draw location on canvas
+    root = Tk()
+    ui = Canvas(root, bg="white", height=600, width=800)
+    ui.pack()
+    mainloop()
 
 if __name__ == "__main__":
     app()
