@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 
-import platform
 import ctypes
-from ctypes import wintypes
 import time
 import os
-from tkinter import *
+
+from ctypes import c_int, WINFUNCTYPE, windll, wintypes
+from ctypes.wintypes import HWND, LPCWSTR, UINT
+
 
 user32 = ctypes.WinDLL('user32', use_last_error=True)
 
@@ -27,23 +28,37 @@ VK_SNAPSHOT = 0x2C  # Print Screen
 
 ctypes.wintypes.ULONG_PTR = ctypes.wintypes.WPARAM
 
+EnumWindows = windll.user32.EnumWindows
+EnumWindowsProc = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int))
+
+GetWindowDC = windll.user32.GetWindowDC
+GetWindowTextW = windll.user32.GetWindowTextW
+GetWindowTextLengthW = windll.user32.GetWindowTextLengthW
+CreateCompatibleDC = windll.gdi32.CreateCompatibleDC
+CreateCompatibleBitmap = windll.gdi32.CreateCompatibleBitmap
+PrintWindow = windll.user32.PrintWindow
+
+IsWindowVisible = windll.user32.IsWindowVisible
+
+
+
 class MOUSEINPUT(ctypes.Structure):
     _fields_ = (
-        ("dx",          ctypes.wintypes.LONG),
-        ("dy",          ctypes.wintypes.LONG),
-        ("mouseData",   ctypes.wintypes.DWORD),
-        ("dwFlags",     ctypes.wintypes.DWORD),
-        ("time",        ctypes.wintypes.DWORD),
-        ("dwExtraInfo", ctypes.wintypes.ULONG_PTR)
+        ("dx",          wintypes.LONG),
+        ("dy",          wintypes.LONG),
+        ("mouseData",   wintypes.DWORD),
+        ("dwFlags",     wintypes.DWORD),
+        ("time",        wintypes.DWORD),
+        ("dwExtraInfo", wintypes.ULONG_PTR)
     )
 
 class KEYBDINPUT(ctypes.Structure):
     _fields_ = (
-        ("wKeyCode",    ctypes.wintypes.WORD),
-        ("wScan",       ctypes.wintypes.WORD),
-        ("dwFlags",     ctypes.wintypes.DWORD),
-        ("time",        ctypes.wintypes.DWORD),
-        ("dwExtraInfo", ctypes.wintypes.ULONG_PTR)
+        ("wKeyCode",    wintypes.WORD),
+        ("wScan",       wintypes.WORD),
+        ("dwFlags",     wintypes.DWORD),
+        ("time",        wintypes.DWORD),
+        ("dwExtraInfo", wintypes.ULONG_PTR)
     )
 
     def __init__(self, *args, **kwds):
@@ -56,9 +71,9 @@ class KEYBDINPUT(ctypes.Structure):
 
 class HARDWAREINPUT(ctypes.Structure):
     _fields_ = (
-        ("uMsg",    ctypes.wintypes.DWORD),
-        ("wParamL", ctypes.wintypes.WORD),
-        ("wParamH", ctypes.wintypes.WORD)
+        ("uMsg",    wintypes.DWORD),
+        ("wParamL", wintypes.WORD),
+        ("wParamH", wintypes.WORD)
     )
 
 class INPUT(ctypes.Structure):
@@ -71,7 +86,7 @@ class INPUT(ctypes.Structure):
     _anonymous_ = ("_input",)
 
     _fields_ = (
-        ("type",   ctypes.wintypes.DWORD),
+        ("type",   wintypes.DWORD),
         ("_input", _INPUT)
     )
 
@@ -98,29 +113,38 @@ def ReleaseKey(hexKeyCode):
     x = INPUT(type=INPUT_KEYBOARD, kbd_input=KEYBDINPUT(wVk=hexKeyCode, dwFlags=KEYEVENTF_KEYUP))
     user32.SendInput(1, ctypes.byref(x), ctypes.sizeof(x))
 
+def windowWorker(hwnd, lParam):
+    winTextLength = bmp = None
+    winTextLength = GetWindowTextLengthW(hwnd)
+    textBuffer = ctypes.create_unicode_buffer(winTextLength + 1)
+    GetWindowTextW(hwnd, textBuffer, winTextLength + 1)
+    if textBuffer.value.startswith("EscapeFromTarkov"):
+        print(textBuffer.value)
+
+    return True
+
 def app():
-    time.sleep(10)
-    PressKey(VK_SNAPSHOT)   
-    ReleaseKey(VK_SNAPSHOT)  
-    print("Print Screen Executed")
+    #time.sleep(10)
+    #PressKey(VK_SNAPSHOT)   
+    #ReleaseKey(VK_SNAPSHOT)  
+    #print("Print Screen Executed")
 
     # #                    SS Date | Server Time? | X-Axis? | Z-Axis? | Y-Axis? | ??? | ??? | ??? | ??? | ???
     # # Screenshot Format: YYYY-MM-DD[HH-MM]_-XXX.X, #.#, -YYY.Y_#.#, #.#, #.#, #.#_##.##
     # # C:\Users\desktop_6950xt\Documents\Escape from Tarkov\Screenshots\2024-06-13[20-31]_-340.8, 1.2, -116.0_0.0, 1.0, 0.0, 0.2_13.62
 
-    files = os.listdir("C://Users//desktop_6950xt//Documents//Escape from Tarkov//Screenshots")
-    files.sort(reverse=True)
-    currentLocation = files[0].split("_")[1].split(",")
-    x = currentLocation[0]
-    y = currentLocation[2]
-    z = currentLocation[1]
-    print(x, y, z)
-    # Delete files
-    # Draw location on canvas
-    root = Tk()
-    ui = Canvas(root, bg="white", height=600, width=800)
-    ui.pack()
-    mainloop()
+    #files = os.listdir("C://Users//desktop_6950xt//Documents//Escape from Tarkov//Screenshots")
+    #files.sort(reverse=True)
+    #currentLocation = files[0].split("_")[1].split(",")
+    #x = currentLocation[0]
+    #y = currentLocation[2]
+    #z = currentLocation[1]
+    #print(x, y, z)
+    ## Delete files
+    ## Draw location on canvas
+
+    EnumWindows(EnumWindowsProc(windowWorker),0)
+
 
 if __name__ == "__main__":
     app()
