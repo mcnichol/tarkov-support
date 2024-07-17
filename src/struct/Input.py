@@ -3,8 +3,8 @@ from src.struct.MouseInput import *
 from src.struct.KeyboardInput import *
 from src.struct.HardwareInput import *
 
-class INPUT(Structure):
-    class _INPUT(Union):
+class Input(Structure):
+    class _Input(Union):
         _fields_ = (
             ("kbd_input",   KeyboardInput),
             ("mouse_input", MouseInput),
@@ -14,7 +14,7 @@ class INPUT(Structure):
 
     _fields_ = (
         ("type",   wintypes.DWORD),
-        ("_input", _INPUT)
+        ("_input", _Input)
     )
 
             

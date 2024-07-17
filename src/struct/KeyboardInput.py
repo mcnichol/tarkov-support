@@ -1,8 +1,8 @@
-from ctypes import windll, wintypes, Structure
+from ctypes import windll, wintypes, Structure, WinDLL
 
 class KeyboardInput(Structure):
     _fields_ = (
-        ("wKeyCode",    wintypes.WORD),
+        ("wVk",    wintypes.WORD),
         ("wScan",       wintypes.WORD),
         ("dwFlags",     wintypes.DWORD),
         ("time",        wintypes.DWORD),
@@ -19,6 +19,6 @@ class KeyboardInput(Structure):
         if not self.dwFlags & KEYEVENTF_UNICODE:
             MAPVK_VK_TO_VSC = 0
 
-            user32 = ctypes.WinDLL('user32', use_last_error=True)
+            user32 = WinDLL('user32', use_last_error=True)
 
             self.wScan = user32.MapVirtualKeyExW(self.wVk, MAPVK_VK_TO_VSC, 0)
