@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import time
-
+import os
 from ctypes import c_int, c_bool, WINFUNCTYPE, POINTER, windll, wintypes, WinDLL, byref, sizeof, create_unicode_buffer, get_last_error
 from ctypes.wintypes import HWND, LPCWSTR, UINT
 
@@ -68,11 +68,9 @@ def windowWorker(hwnd, lParam):
     if textBuffer.value.startswith("EscapeFromTarkov"):
         EFT_HANDLE = hwnd
         print("Setting Window Handle to ", textBuffer.value)
-        currentThread = GetCurrentThreadId()
-        print(currentThread)
-        remoteThread = GetWindowThreadProcessId(hwnd)
-        print(remoteThread)
-        AttachThreadInput(currentThread, remoteThread, True)
+        eftThreadId = GetWindowThreadProcessId(EFT_HANDLE)
+        currentThreadId = GetCurrentThreadId()
+        AttachThreadInput(currentThreadId, eftThreadId, True)
 
     return True
 
@@ -85,23 +83,10 @@ user32.SendInput.argtypes = (
 
 def app():
     time.sleep(2)
-    #PressKey(VK_SNAPSHOT)   
-    #ReleaseKey(VK_SNAPSHOT)  
-    #print("Print Screen Executed")
 
     # #                    SS Date | Server Time? | X-Axis? | Z-Axis? | Y-Axis? | ??? | ??? | ??? | ??? | ???
     # # Screenshot Format: YYYY-MM-DD[HH-MM]_-XXX.X, #.#, -YYY.Y_#.#, #.#, #.#, #.#_##.##
     # # C:\Users\desktop_6950xt\Documents\Escape from Tarkov\Screenshots\2024-06-13[20-31]_-340.8, 1.2, -116.0_0.0, 1.0, 0.0, 0.2_13.62
-
-    #files = os.listdir("C://Users//desktop_6950xt//Documents//Escape from Tarkov//Screenshots")
-    #files.sort(reverse=True)
-    #currentLocation = files[0].split("_")[1].split(",")
-    #x = currentLocation[0]
-    #y = currentLocation[2]
-    #z = currentLocation[1]
-    #print(x, y, z)
-    ## Delete files
-    ## Draw location on canvas
 
     EnumWindows(EnumWindowsProc(windowWorker),0)
 
@@ -111,7 +96,20 @@ def app():
         ReleaseKey(VK_SNAPSHOT)
     
         print("Print Screen Executed")
+        files = os.listdir("C://Users//desktop_6950xt//Documents//Escape from Tarkov//Screenshots")
+        if files is None:
+            print("No snapshot was taken")
+        else:  
+            files.sort(reverse=True)
+            currentLocation = files[0].split("_")[1].split(",")
+            x = currentLocation[0]
+            y = currentLocation[2]
+            z = currentLocation[1]
+            print("X: ", x, "Y: ", y, "Z: ", z)
+            ## Delete files
+            ## Draw location on canvas
 
+ 
 
 if __name__ == "__main__":
     app()
